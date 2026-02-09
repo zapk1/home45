@@ -1,0 +1,22 @@
+
+{
+  "name": "Home45",
+  "short_name": "Home45",
+  "description": "Buy your new address online, and sell your house on our platform with R1500 fee per property ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/VkSMHCDc/Chat-GPT-Image-Jan-14-2026-11-42-21-AM.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/VkSMHCDc/Chat-GPT-Image-Jan-14-2026-11-42-21-AM.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
