@@ -1,0 +1,3198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href__="manifest.json">
+    <meta name="theme-color" content="#fbbf24">
+    <link rel="icon" href__="https://i.postimg.cc/RZk6ndb7/IMG-4010.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home45 - Premium Real Estate</title>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: white;
+            color: #0f172a;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .contact-link, .sell-btn {
+            color: #f59e0b;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sell-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .sell-btn:hover {
+            background: #d97706;
+        }
+
+        .contact-link:hover {
+            color: #d97706;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            color: white;
+            padding: 4rem 1.5rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            color: #cbd5e1;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .deposit-badge {
+            display: inline-block;
+            background: #f59e0b;
+            color: #0f172a;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: none;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            min-width: 140px;
+        }
+
+        /* Properties Section */
+        .properties-section {
+            max-width: 1280px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .properties-count {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Property Card - FIXED CONSISTENT SIZING */
+        .property-card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .property-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+        }
+
+        .property-image-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .property-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.5s;
+        }
+
+        .property-card:hover .property-image-container img {
+            transform: scale(1.05);
+        }
+
+        .property-status {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            z-index: 2;
+        }
+
+        .status-available { background: #10b981; }
+        .status-pending { background: #f59e0b; }
+        .status-sold { background: #ef4444; }
+
+        .property-price-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 1rem;
+            color: white;
+            z-index: 1;
+        }
+
+        .property-price {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .property-deposit {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .property-content {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .property-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .property-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .property-features {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            margin-top: auto;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .feature-item svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0f172a;
+            color: white;
+            padding: 3rem 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .footer-email {
+            color: #f59e0b;
+            text-decoration: none;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #334155;
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .copilot-trust {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .copilot-trust .highlight {
+            color: #f59e0b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-primary {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d97706;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Admin Styles */
+        .admin-container {
+            display: none;
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .admin-container.active {
+            display: block;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .admin-tab.active {
+            color: #f59e0b;
+            border-bottom-color: #f59e0b;
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 2px solid #e2e8f0;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+        }
+
+        .image-uploader {
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .image-uploader:hover {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .image-preview {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border: 1px solid #60a5fa;
+            color: #1e3a8a;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #34d399;
+            color: #065f46;
+        }
+
+        /* Property Details Page */
+        .details-container {
+            display: none;
+            max-width: 1280px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .details-container.active {
+            display: block;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        /* NEW HORIZONTAL CAROUSEL GALLERY */
+        .gallery-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .main-image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            cursor: zoom-in;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-nav svg {
+            width: 24px;
+            height: 24px;
+            color: #0f172a;
+        }
+
+        .carousel-nav.prev {
+            left: 1rem;
+        }
+
+        .carousel-nav.next {
+            right: 1rem;
+        }
+
+        .carousel-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .carousel-nav:disabled:hover {
+            transform: translateY(-50%);
+        }
+
+        .image-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .indicator-dot.active {
+            background: #f59e0b;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .image-counter {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .details-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            margin: 1rem 0;
+        }
+
+        .feature-box {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .icon-bed { background: #fef3c7; }
+        .icon-bath { background: #dbeafe; }
+        .icon-car { background: #d1fae5; }
+        .icon-size { background: #e9d5ff; }
+
+        .sidebar-card {
+            position: sticky;
+            top: 5rem;
+        }
+
+        .price-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .price-label {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .price-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0f172a;
+        }
+
+        .deposit-section {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .deposit-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #92400e;
+        }
+
+        /* Review Styles */
+        .review-card {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-card:last-child {
+            border-bottom: none;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fef3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #f59e0b;
+        }
+
+        .stars {
+            color: #fbbf24;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn:hover {
+            background: #f8fafc;
+        }
+
+        /* PAYMENT CONFIRMATION SCREEN STYLES */
+        .payment-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 2rem 1rem;
+        }
+
+        .payment-screen.active {
+            display: block;
+        }
+
+        .payment-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        .payment-icon-wrapper {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .payment-icon-wrapper svg {
+            width: 80px;
+            height: 80px;
+            color: #10b981;
+            margin: 0 auto;
+        }
+
+        .payment-title {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-breakdown {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .breakdown-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #0f172a;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+            border-top: 2px solid #0f172a;
+        }
+
+        .breakdown-label {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .breakdown-value {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .breakdown-item:last-child .breakdown-label {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 1.125rem;
+        }
+
+        .breakdown-item:last-child .breakdown-value {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 1.5rem;
+        }
+
+        .bank-details-card {
+            background: white;
+            border: 2px solid #f59e0b;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .bank-logo-wrapper {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .bank-logo {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .bank-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .bank-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .bank-detail-label {
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .bank-detail-value {
+            font-weight: 600;
+            color: #0f172a;
+            text-align: right;
+        }
+
+        .payment-instructions {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-instructions h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .payment-instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .payment-instructions li {
+            padding: 0.5rem 0;
+            color: #92400e;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+        }
+
+        .payment-instructions li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.125rem;
+        }
+
+        .payment-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .payment-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .payment-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .payment-btn-primary {
+            background: #10b981;
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .payment-btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .payment-btn-secondary {
+            background: white;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+        }
+
+        .payment-btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .remaining-payment-info {
+            background: #dbeafe;
+            border: 2px solid #60a5fa;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .remaining-payment-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .remaining-payment-info p {
+            color: #1e3a8a;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .remaining-payment-info .remaining-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-top: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .sell-btn {
+                font-size: 0.75rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+            }
+
+            .carousel-nav svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .carousel-nav.prev {
+                left: 0.5rem;
+            }
+
+            .carousel-nav.next {
+                right: 0.5rem;
+            }
+
+            .payment-container {
+                padding: 2rem 1.5rem;
+            }
+
+            .payment-title {
+                font-size: 1.5rem;
+            }
+
+            .payment-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-icon-wrapper svg {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-container" id="logoContainer">
+                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_689b29c1aba8c5ace441a8fe/51b3acae7_Notepad_202601312102_20211.jpg" alt="Home45" class="logo">
+                <span class="logo-text">Home45</span>
+            </div>
+            <div class="header-actions">
+                <button class="sell-btn" onclick="showSellHouseForm()">
+                    <i data-lucide="home"></i>
+                    Sell Your House
+                </button>
+                <a href__="mailto:home45pro@gmail.com" class="contact-link">
+                    <i data-lucide="mail"></i>
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Home Page -->
+    <div id="homePage">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Find Your Dream Home</h1>
+            <p class="hero-subtitle">Premium Properties Across South Africa</p>
+            <div class="deposit-badge">
+                <i data-lucide="dollar-sign" style="width:16px;height:16px;display:inline;vertical-align:middle;"></i>
+                50% Deposit Required • Cash Buyers Only • No Finance
+            </div>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by location or property name...">
+                <select class="filter-select" id="priceFilter">
+                    <option value="all">All Prices</option>
+                    <option value="under2m">Under R2M</option>
+                    <option value="2m-5m">R2M - R5M</option>
+                    <option value="over5m">Over R5M</option>
+                </select>
+                <select class="filter-select" id="typeFilter">
+                    <option value="all">All Types</option>
+                    <option value="House">House</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Townhouse">Townhouse</option>
+                    <option value="Villa">Villa</option>
+                    <option value="Estate">Estate</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Properties Section -->
+        <section class="properties-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Available Properties</h2>
+                    <p class="properties-count" id="propertiesCount">5 properties found</p>
+                </div>
+            </div>
+            
+            <!-- DEFAULT PROPERTIES - RENDERED IMMEDIATELY IN HTML -->
+            <div class="properties-grid" id="propertiesGrid">
+                <!-- Default Property 1 -->
+                <div class="property-card" onclick="viewProperty('default-1')">
+                    <div class="property-image-container">
+                        <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800" alt="Luxury Villa in Sandton" onclick="event.stopPropagation(); viewImageFullScreen('https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800')">
+                        <span class="property-status status-available">Available</span>
+                        <div class="property-price-overlay">
+                            <div class="property-price">R 4,500,000</div>
+                            <div class="property-deposit">50% Deposit: R 2,250,000</div>
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <h3 class="property-title">Luxury Villa in Sandton</h3>
+                        <div class="property-location">
+                            <i data-lucide="map-pin"></i>
+                            <span>Sandton, Johannesburg</span>
+                        </div>
+                        <div class="property-features">
+                            <div class="feature-item"><i data-lucide="bed"></i> 4</div>
+                            <div class="feature-item"><i data-lucide="bath"></i> 3</div>
+                            <div class="feature-item"><i data-lucide="car"></i> 2</div>
+                            <div class="feature-item"><i data-lucide="home"></i> Villa</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Property 2 -->
+                <div class="property-card" onclick="viewProperty('default-2')">
+                    <div class="property-image-container">
+                        <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800" alt="Modern Apartment in Cape Town" onclick="event.stopPropagation(); viewImageFullScreen('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800')">
+                        <span class="property-status status-available">Available</span>
+                        <div class="property-price-overlay">
+                            <div class="property-price">R 2,800,000</div>
+                            <div class="property-deposit">50% Deposit: R 1,400,000</div>
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <h3 class="property-title">Modern Apartment in Cape Town</h3>
+                        <div class="property-location">
+                            <i data-lucide="map-pin"></i>
+                            <span>Sea Point, Cape Town</span>
+                        </div>
+                        <div class="property-features">
+                            <div class="feature-item"><i data-lucide="bed"></i> 2</div>
+                            <div class="feature-item"><i data-lucide="bath"></i> 2</div>
+                            <div class="feature-item"><i data-lucide="car"></i> 1</div>
+                            <div class="feature-item"><i data-lucide="home"></i> Apartment</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Property 3 -->
+                <div class="property-card" onclick="viewProperty('default-3')">
+                    <div class="property-image-container">
+                        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800" alt="Family Home in Pretoria" onclick="event.stopPropagation(); viewImageFullScreen('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800')">
+                        <span class="property-status status-available">Available</span>
+                        <div class="property-price-overlay">
+                            <div class="property-price">R 3,200,000</div>
+                            <div class="property-deposit">50% Deposit: R 1,600,000</div>
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <h3 class="property-title">Family Home in Pretoria</h3>
+                        <div class="property-location">
+                            <i data-lucide="map-pin"></i>
+                            <span>Waterkloof, Pretoria</span>
+                        </div>
+                        <div class="property-features">
+                            <div class="feature-item"><i data-lucide="bed"></i> 5</div>
+                            <div class="feature-item"><i data-lucide="bath"></i> 3</div>
+                            <div class="feature-item"><i data-lucide="car"></i> 3</div>
+                            <div class="feature-item"><i data-lucide="home"></i> House</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Property 4 -->
+                <div class="property-card" onclick="viewProperty('default-4')">
+                    <div class="property-image-container">
+                        <img src="https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800" alt="Townhouse in Durban" onclick="event.stopPropagation(); viewImageFullScreen('https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800')">
+                        <span class="property-status status-available">Available</span>
+                        <div class="property-price-overlay">
+                            <div class="property-price">R 1,950,000</div>
+                            <div class="property-deposit">50% Deposit: R 975,000</div>
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <h3 class="property-title">Townhouse in Durban</h3>
+                        <div class="property-location">
+                            <i data-lucide="map-pin"></i>
+                            <span>Umhlanga, Durban</span>
+                        </div>
+                        <div class="property-features">
+                            <div class="feature-item"><i data-lucide="bed"></i> 3</div>
+                            <div class="feature-item"><i data-lucide="bath"></i> 2</div>
+                            <div class="feature-item"><i data-lucide="car"></i> 2</div>
+                            <div class="feature-item"><i data-lucide="home"></i> Townhouse</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Property 5 -->
+                <div class="property-card" onclick="viewProperty('default-5')">
+                    <div class="property-image-container">
+                        <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800" alt="Estate in Stellenbosch" onclick="event.stopPropagation(); viewImageFullScreen('https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800')">
+                        <span class="property-status status-available">Available</span>
+                        <div class="property-price-overlay">
+                            <div class="property-price">R 12,500,000</div>
+                            <div class="property-deposit">50% Deposit: R 6,250,000</div>
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <h3 class="property-title">Estate in Stellenbosch</h3>
+                        <div class="property-location">
+                            <i data-lucide="map-pin"></i>
+                            <span>Stellenbosch, Western Cape</span>
+                        </div>
+                        <div class="property-features">
+                            <div class="feature-item"><i data-lucide="bed"></i> 6</div>
+                            <div class="feature-item"><i data-lucide="bath"></i> 5</div>
+                            <div class="feature-item"><i data-lucide="car"></i> 4</div>
+                            <div class="feature-item"><i data-lucide="home"></i> Estate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Property Details Page -->
+    <div id="detailsPage" class="details-container">
+        <button class="back-btn" onclick="showHome()">
+            <i data-lucide="arrow-left"></i>
+            Back to Listings
+        </button>
+        <div id="detailsContent"></div>
+    </div>
+
+    <!-- PAYMENT CONFIRMATION SCREEN -->
+    <div id="paymentScreen" class="payment-screen">
+        <div class="payment-container">
+            <div class="payment-icon-wrapper">
+                <i data-lucide="check-circle"></i>
+            </div>
+            
+            <h2 class="payment-title">Complete Your Deposit Payment</h2>
+            <p class="payment-subtitle">Secure this property with your 50% deposit</p>
+
+            <div class="payment-breakdown">
+                <h3 class="breakdown-title">Payment Breakdown</h3>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Property Deposit (50%)</span>
+                    <span class="breakdown-value" id="paymentPropertyDeposit">R 0</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Property Preparation Fee</span>
+                    <span class="breakdown-value">R 15,000</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Title Deed Preparation</span>
+                    <span class="breakdown-value">R 25,000</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Administrative Charges</span>
+                    <span class="breakdown-value">R 10,000</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">TOTAL TO PAY NOW</span>
+                    <span class="breakdown-value" id="paymentTotalAmount">R 0</span>
+                </div>
+            </div>
+
+            <div class="bank-details-card">
+                <div class="bank-logo-wrapper">
+                    <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_689b29c1aba8c5ace441a8fe/51b3acae7_Notepad_202601312102_20211.jpg" alt="TymeBank" class="bank-logo">
+                </div>
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">Bank Name:</span>
+                    <span class="bank-detail-value">TymeBank</span>
+                </div>
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">Account Number:</span>
+                    <span class="bank-detail-value">5110 3334 333</span>
+                </div>
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">Branch Code:</span>
+                    <span class="bank-detail-value">678910</span>
+                </div>
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">Account Type:</span>
+                    <span class="bank-detail-value">Everyday Account</span>
+                </div>
+                <div class="bank-detail-row">
+                    <span class="bank-detail-label">Account Holder:</span>
+                    <span class="bank-detail-value">Home45</span>
+                </div>
+            </div>
+
+            <div class="payment-instructions">
+                <h4>
+                    <i data-lucide="info"></i>
+                    Payment Instructions
+                </h4>
+                <ul>
+                    <li>Use the bank details above to make your deposit payment</li>
+                    <li>Ensure you pay the exact amount shown in the breakdown</li>
+                    <li>Use your full name as the payment reference</li>
+                    <li>After payment, click "I Have Paid" to confirm and send proof</li>
+                    <li>We will verify your payment within 24 hours</li>
+                </ul>
+            </div>
+
+            <div class="remaining-payment-info">
+                <h4>Remaining Balance Due Upon Key Collection</h4>
+                <p>The remaining 50% of the property price will be payable when you receive your keys and complete the property transfer process.</p>
+                <div class="remaining-amount" id="paymentRemainingBalance">R 0</div>
+            </div>
+
+            <div class="payment-actions">
+                <button class="payment-btn payment-btn-secondary" onclick="closePaymentScreen()">
+                    <i data-lucide="arrow-left"></i>
+                    Back
+                </button>
+                <button class="payment-btn payment-btn-primary" onclick="confirmPayment()">
+                    <i data-lucide="check"></i>
+                    I Have Paid
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPage" class="admin-container">
+        <div class="admin-header">
+            <div>
+                <h1>Admin Panel</h1>
+                <p style="color: #64748b;">Manage properties, inquiries, and sellers</p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" onclick="showHome()">
+                    <i data-lucide="eye"></i>
+                    View Site
+                </button>
+                <button class="btn btn-secondary" onclick="adminLogout()">
+                    <i data-lucide="log-out"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p class="stat-value" id="totalProperties">0</p>
+                <p class="stat-label">Total Properties</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value" id="totalInquiries">0</p>
+                <p class="stat-label">Property Buyers</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value" id="newInquiries">0</p>
+                <p class="stat-label">New Buyers</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-value" id="totalSellers">0</p>
+                <p class="stat-label">House Sellers</p>
+            </div>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="admin-tab active" id="propertiesTab" onclick="switchAdminTab('properties')">
+                <i data-lucide="building"></i>
+                Properties
+            </button>
+            <button class="admin-tab" id="buyersTab" onclick="switchAdminTab('buyers')">
+                <i data-lucide="users"></i>
+                Property Buyers
+            </button>
+            <button class="admin-tab" id="sellersTab" onclick="switchAdminTab('sellers')">
+                <i data-lucide="home"></i>
+                House Sellers
+            </button>
+            <button class="admin-tab" id="settingsTab" onclick="switchAdminTab('settings')">
+                <i data-lucide="settings"></i>
+                Settings
+            </button>
+        </div>
+
+        <div id="adminPropertiesTab">
+            <div class="admin-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Manage Properties</h3>
+                    <button class="btn btn-primary" onclick="showPropertyForm()">
+                        <i data-lucide="plus"></i>
+                        Add Property
+                    </button>
+                </div>
+                <div id="adminPropertiesList"></div>
+            </div>
+        </div>
+
+        <div id="adminBuyersTab" class="hidden">
+            <div class="admin-card">
+                <h3 style="margin-bottom: 1.5rem;">Property Buyers / Interested People</h3>
+                <div id="adminBuyersList"></div>
+            </div>
+        </div>
+
+        <div id="adminSellersTab" class="hidden">
+            <div class="admin-card">
+                <h3 style="margin-bottom: 1.5rem;">House Sellers Applications</h3>
+                <div id="adminSellersList"></div>
+            </div>
+        </div>
+
+        <div id="adminSettingsTab" class="hidden">
+            <div class="admin-card">
+                <h3 style="margin-bottom: 1.5rem;">Bank Account Settings</h3>
+                <form id="bankSettingsForm" onsubmit="saveBankSettings(event)">
+                    <div class="form-group">
+                        <label class="form-label">Bank Name</label>
+                        <input type="text" class="form-input" id="bankName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" class="form-input" id="accountNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Account Holder Name</label>
+                        <input type="text" class="form-input" id="accountHolder" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Branch Code (Optional)</label>
+                        <input type="text" class="form-input" id="branchCode">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="save"></i>
+                        Save Bank Details
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Password Modal -->
+    <div id="adminPasswordModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i data-lucide="lock"></i>
+                    Admin Access
+                </h3>
+                <button class="close-btn" onclick="closeAdminPasswordModal()">×</button>
+            </div>
+            <p style="color: #64748b; margin-bottom: 1.5rem;">Enter the admin password to access the management panel</p>
+            <form onsubmit="checkAdminPassword(event)">
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="adminPasswordInput" required>
+                    <p id="adminPasswordError" style="color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem; display: none;">Incorrect password</p>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i data-lucide="unlock"></i>
+                    Access Admin Panel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Property Form Modal -->
+    <div id="propertyFormModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="propertyFormTitle">
+                    <i data-lucide="plus-circle"></i>
+                    Add New Property
+                </h3>
+                <button class="close-btn" onclick="closePropertyForm()">×</button>
+            </div>
+            <form id="propertyForm" onsubmit="saveProperty(event)">
+                <div class="form-group">
+                    <label class="form-label">Property Title</label>
+                    <input type="text" class="form-input" id="propTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="propDescription"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Price (ZAR)</label>
+                        <input type="number" class="form-input" id="propPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input" id="propLocation" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Bedrooms</label>
+                        <input type="number" class="form-input" id="propBedrooms">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bathrooms</label>
+                        <input type="number" class="form-input" id="propBathrooms">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Garages</label>
+                        <input type="number" class="form-input" id="propGarages">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Kitchens</label>
+                        <input type="number" class="form-input" id="propKitchens" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Living Areas</label>
+                        <input type="number" class="form-input" id="propLivingAreas" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Property Size</label>
+                        <input type="text" class="form-input" id="propSize" placeholder="e.g. 350 sqm">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Property Type</label>
+                        <select class="form-select" id="propType">
+                            <option value="House">House</option>
+                            <option value="Apartment">Apartment</option>
+                            <option value="Townhouse">Townhouse</option>
+                            <option value="Villa">Villa</option>
+                            <option value="Estate">Estate</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="propStatus">
+                            <option value="Available">Available</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Sold">Sold</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contact Email</label>
+                    <input type="email" class="form-input" id="propEmail" value="home45pro@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Property Images (up to 5)</label>
+                    <div class="image-uploader" onclick="document.getElementById('imageInput').click()">
+                        <i data-lucide="camera" style="width:48px;height:48px;margin:0 auto 0.5rem;"></i>
+                        <p>Click to upload images or add URL</p>
+                        <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.5rem;">Supports both file upload and image URLs</p>
+                    </div>
+                    <input type="file" id="imageInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
+                    <div style="margin-top: 0.5rem;">
+                        <input type="text" class="form-input" id="imageUrlInput" placeholder="Or paste image URL and press Enter" onkeypress="handleImageUrl(event)">
+                    </div>
+                    <div class="image-preview-grid" id="imagePreviewGrid"></div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closePropertyForm()">
+                        <i data-lucide="x"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i data-lucide="save"></i>
+                        Save Property
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Inquiry Form Modal -->
+    <div id="inquiryFormModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i data-lucide="heart"></i>
+                    I Want This Property
+                </h3>
+                <button class="close-btn" onclick="closeInquiryForm()">×</button>
+            </div>
+            <div class="alert alert-warning">
+                <strong>Important Information:</strong>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.875rem;">
+                    <li>All fields are required</li>
+                    <li>A 50% deposit is required to secure this property</li>
+                    <li>No finance available - Cash buyers only</li>
+                    <li>Title deed will be prepared from the Deeds Office after deposit</li>
+                </ul>
+            </div>
+            <form id="inquiryForm" onsubmit="submitInquiry(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-input" id="buyerName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address *</label>
+                    <input type="email" class="form-input" id="buyerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number *</label>
+                    <input type="tel" class="form-input" id="buyerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Your Current Location *</label>
+                    <input type="text" class="form-input" id="buyerLocation" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">When do you want to move in? *</label>
+                    <input type="date" class="form-input" id="moveInDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Additional Message (Optional)</label>
+                    <textarea class="form-textarea" id="buyerMessage"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i data-lucide="send"></i>
+                    Submit Interest
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Form Modal -->
+    <div id="reviewFormModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i data-lucide="star"></i>
+                    Write a Review
+                </h3>
+                <button class="close-btn" onclick="closeReviewForm()">×</button>
+            </div>
+            <form id="reviewForm" onsubmit="submitReview(event)">
+                <div class="form-group">
+                    <label class="form-label">Your Name</label>
+                    <input type="text" class="form-input" id="reviewerName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Rating</label>
+                    <div style="font-size: 2rem;" id="ratingStars">
+                        <span onclick="setRating(1)" style="cursor: pointer;">☆</span>
+                        <span onclick="setRating(2)" style="cursor: pointer;">☆</span>
+                        <span onclick="setRating(3)" style="cursor: pointer;">☆</span>
+                        <span onclick="setRating(4)" style="cursor: pointer;">☆</span>
+                        <span onclick="setRating(5)" style="cursor: pointer;">☆</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Your Review</label>
+                    <textarea class="form-textarea" id="reviewComment" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i data-lucide="check"></i>
+                    Submit Review
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sell House Modal -->
+    <div id="sellHouseModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i data-lucide="home"></i>
+                    Sell Your House With Us
+                </h3>
+                <button class="close-btn" onclick="closeSellHouseForm()">×</button>
+            </div>
+            <div class="alert alert-warning">
+                <strong>Service Fee: R1,500 per property</strong>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.875rem;">
+                    <li>Professional listing on our platform</li>
+                    <li>Promotion to verified buyers</li>
+                    <li>Deposit required before listing</li>
+                </ul>
+            </div>
+            <form id="sellHouseForm" onsubmit="submitSellHouse(event)">
+                <div class="form-group">
+                    <label class="form-label">Your Full Name *</label>
+                    <input type="text" class="form-input" id="sellerName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address *</label>
+                    <input type="email" class="form-input" id="sellerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number *</label>
+                    <input type="tel" class="form-input" id="sellerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Property Address *</label>
+                    <input type="text" class="form-input" id="sellerAddress" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Property Price (ZAR) *</label>
+                    <input type="number" class="form-input" id="sellerPrice" required>
+                </div>
+                
+                <div class="alert alert-info" style="margin:1rem 0;" id="bankDetailsAlert">
+                    <strong>Payment Details:</strong><br>
+                    <strong>Bank:</strong> <span id="displayBankName">TymeBank</span><br>
+                    <strong>Account:</strong> <span id="displayAccountNumber">5110 3334 333</span><br>
+                    <strong>Account Holder:</strong> <span id="displayAccountHolder">Home45</span><br>
+                    <strong>Amount:</strong> R1,500<br>
+                    <p style="font-size:0.75rem;margin-top:0.5rem;">Please deposit R1,500 before submitting</p>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                        <input type="checkbox" id="confirmDeposit" required>
+                        <span style="font-size:0.875rem;">I confirm that I have made the R1,500 deposit</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i data-lucide="send"></i>
+                    Submit & Send Proof of Payment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                        <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/user_689b29c1aba8c5ace441a8fe/51b3acae7_Notepad_202601312102_20211.jpg" alt="Home45" style="width: 40px; height: 40px; border-radius: 0.5rem;">
+                        <span style="font-size: 1.25rem; font-weight: bold;">Home45</span>
+                    </div>
+                    <p>Premium real estate properties across South Africa. Find your dream home today.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Us</h4>
+                    <p>Email: <a href__="mailto:home45pro@gmail.com" class="footer-email">home45pro@gmail.com</a></p>
+                </div>
+                <div class="footer-section">
+                    <h4>Important Notice</h4>
+                    <p>50% deposit required to secure property. Cash buyers only - no finance available. Title deed preparation handled through Deeds Office.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Home45. All rights reserved.</p>
+                <p class="copilot-trust">Trust with <span class="highlight">Co-Pilot</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-CPB66djZJdVAdn7aFYKNloHNAgAAjCE",
+            authDomain: "home45-e1d4b.firebaseapp.com",
+            databaseURL: "https://home45-e1d4b-default-rtdb.firebaseio.com",
+            projectId: "home45-e1d4b",
+            storageBucket: "home45-e1d4b.firebasestorage.app",
+            messagingSenderId: "820243058233",
+            appId: "1:820243058233:web:7469ea0831f56ae8a547e8",
+            measurementId: "G-7939RFCPK0"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Default Properties Data (STAYS BEFORE FIRESTORE)
+        const defaultPropertiesData = {
+            'default-1': {
+                id: 'default-1',
+                title: 'Luxury Villa in Sandton',
+                description: 'Stunning 4 bedroom villa with pool and garden in the heart of Sandton. Modern finishes throughout with underfloor heating, solar panels, and smart home automation.',
+                price: 4500000,
+                location: 'Sandton, Johannesburg',
+                bedrooms: 4,
+                bathrooms: 3,
+                garages: 2,
+                kitchens: 1,
+                living_areas: 2,
+                property_size: '450 sqm',
+                property_type: 'Villa',
+                images: [
+                    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800',
+                    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
+                    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800'
+                ],
+                status: 'Available',
+                contact_email: 'home45pro@gmail.com'
+            },
+            'default-2': {
+                id: 'default-2',
+                title: 'Modern Apartment in Cape Town',
+                description: 'Beautiful 2 bedroom apartment with sea views in Sea Point. 24-hour security. Open plan living with modern kitchen.',
+                price: 2800000,
+                location: 'Sea Point, Cape Town',
+                bedrooms: 2,
+                bathrooms: 2,
+                garages: 1,
+                kitchens: 1,
+                living_areas: 1,
+                property_size: '120 sqm',
+                property_type: 'Apartment',
+                images: [
+                    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
+                    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800'
+                ],
+                status: 'Available',
+                contact_email: 'home45pro@gmail.com'
+            },
+            'default-3': {
+                id: 'default-3',
+                title: 'Family Home in Pretoria',
+                description: 'Spacious 5 bedroom family home with large garden. Perfect for families with separate guest cottage and swimming pool.',
+                price: 3200000,
+                location: 'Waterkloof, Pretoria',
+                bedrooms: 5,
+                bathrooms: 3,
+                garages: 3,
+                kitchens: 1,
+                living_areas: 3,
+                property_size: '380 sqm',
+                property_type: 'House',
+                images: [
+                    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800'
+                ],
+                status: 'Available',
+                contact_email: 'home45pro@gmail.com'
+            },
+            'default-4': {
+                id: 'default-4',
+                title: 'Townhouse in Durban',
+                description: 'Secure 3 bedroom townhouse in gated estate. Close to beaches and shopping. Low maintenance garden and communal pool.',
+                price: 1950000,
+                location: 'Umhlanga, Durban',
+                bedrooms: 3,
+                bathrooms: 2,
+                garages: 2,
+                kitchens: 1,
+                living_areas: 1,
+                property_size: '180 sqm',
+                property_type: 'Townhouse',
+                images: [
+                    'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=800',
+                    'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800'
+                ],
+                status: 'Available',
+                contact_email: 'home45pro@gmail.com'
+            },
+            'default-5': {
+                id: 'default-5',
+                title: 'Estate in Stellenbosch',
+                description: 'Magnificent wine farm estate with 6 bedrooms. Includes vineyard and wine cellar. Stunning mountain views and award-winning gardens.',
+                price: 12500000,
+                location: 'Stellenbosch, Western Cape',
+                bedrooms: 6,
+                bathrooms: 5,
+                garages: 4,
+                kitchens: 2,
+                living_areas: 4,
+                property_size: '850 sqm',
+                property_type: 'Estate',
+                images: [
+                    'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800',
+                    'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800'
+                ],
+                status: 'Available',
+                contact_email: 'home45pro@gmail.com'
+            }
+        };
+
+        // Global State
+        let currentPropertyId = null;
+        let currentEditingProperty = null;
+        let selectedRating = 5;
+        let uploadedImages = [];
+        let logoClickCount = 0;
+        let allProperties = [];
+        let currentImageIndex = 0;
+        let currentPropertyImages = [];
+        let currentInquiryData = null;
+        let bankSettings = {
+            bankName: 'TymeBank',
+            accountNumber: '5110 3334 333',
+            accountHolder: 'Home45',
+            branchCode: '678910'
+        };
+
+        // Format currency
+        function formatPrice(price) {
+            return new Intl.NumberFormat('en-ZA', {
+                style: 'currency',
+                currency: 'ZAR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+
+        // Convert image to Base64
+        function imageToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Handle Image Upload with Base64
+        async function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            if (uploadedImages.length + files.length > 5) {
+                alert('Maximum 5 images allowed');
+                return;
+            }
+
+            for (const file of files) {
+                const base64 = await imageToBase64(file);
+                uploadedImages.push(base64);
+            }
+            
+            renderImagePreviews();
+        }
+
+        // Handle Image URL
+        function handleImageUrl(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const url = event.target.value.trim();
+                if (url && uploadedImages.length < 5) {
+                    uploadedImages.push(url);
+                    event.target.value = '';
+                    renderImagePreviews();
+                } else if (uploadedImages.length >= 5) {
+                    alert('Maximum 5 images allowed');
+                }
+            }
+        }
+
+        // Render Image Previews
+        function renderImagePreviews() {
+            const grid = document.getElementById('imagePreviewGrid');
+            if (uploadedImages.length === 0) {
+                grid.innerHTML = '<p style="text-align:center;color:#64748b;padding:1rem;grid-column:1/-1;">No images yet</p>';
+                return;
+            }
+            grid.innerHTML = uploadedImages.map((img, index) => `
+                <div class="image-preview">
+                    <img src="${img}" alt="Preview ${index+1}" style="width:100%;height:100%;object-fit:cover;">
+                    <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Remove Image
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            renderImagePreviews();
+        }
+
+        // Full Screen Image Viewer
+        function viewImageFullScreen(src) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:2rem;';
+            modal.onclick = () => modal.remove();
+            
+            const img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;border-radius:0.5rem;';
+            
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+        }
+
+        // NEW CAROUSEL NAVIGATION FUNCTIONS
+        function navigateImage(direction) {
+            currentImageIndex += direction;
+            if (currentImageIndex < 0) currentImageIndex = currentPropertyImages.length - 1;
+            if (currentImageIndex >= currentPropertyImages.length) currentImageIndex = 0;
+            updateCarouselDisplay();
+        }
+
+        function goToImage(index) {
+            currentImageIndex = index;
+            updateCarouselDisplay();
+        }
+
+        function updateCarouselDisplay() {
+            const mainImg = document.getElementById('mainCarouselImage');
+            const prevBtn = document.getElementById('prevImageBtn');
+            const nextBtn = document.getElementById('nextImageBtn');
+            const counter = document.getElementById('imageCounter');
+            
+            if (mainImg && currentPropertyImages.length > 0) {
+                mainImg.src = currentPropertyImages[currentImageIndex];
+                mainImg.onclick = () => viewImageFullScreen(currentPropertyImages[currentImageIndex]);
+            }
+            
+            if (counter) {
+                counter.textContent = `${currentImageIndex + 1} / ${currentPropertyImages.length}`;
+            }
+            
+            // Update indicators
+            document.querySelectorAll('.indicator-dot').forEach((dot, idx) => {
+                dot.classList.toggle('active', idx === currentImageIndex);
+            });
+            
+            // Update button states
+            if (prevBtn) prevBtn.disabled = currentPropertyImages.length <= 1;
+            if (nextBtn) nextBtn.disabled = currentPropertyImages.length <= 1;
+        }
+
+        // Load Properties from Firestore - MERGE with Defaults
+        async function loadFirestoreProperties() {
+            try {
+                const snapshot = await db.collection('properties').orderBy('created_at', 'desc').get();
+                const firestoreProperties = [];
+                snapshot.forEach(doc => {
+                    firestoreProperties.push({ id: doc.id, ...doc.data() });
+                });
+                
+                console.log(`✅ Loaded ${firestoreProperties.length} properties from Firestore`);
+                
+                // MERGE: Firestore on TOP, defaults on BOTTOM (never hide defaults)
+                allProperties = [...firestoreProperties, ...Object.values(defaultPropertiesData)];
+                
+                console.log(`✅ Total: ${allProperties.length} properties (Firestore + Defaults)`);
+                
+                displayProperties(allProperties);
+            } catch (error) {
+                console.error('Error loading Firestore properties:', error);
+                // Keep showing defaults on error
+                allProperties = Object.values(defaultPropertiesData);
+                displayProperties(allProperties);
+            }
+        }
+
+        // Display Properties
+        function displayProperties(properties) {
+            const grid = document.getElementById('propertiesGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const priceFilter = document.getElementById('priceFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            let filtered = properties.filter(prop => {
+                const matchesSearch = prop.title.toLowerCase().includes(searchTerm) || 
+                                     prop.location.toLowerCase().includes(searchTerm);
+                
+                let matchesPrice = true;
+                if (priceFilter === 'under2m') matchesPrice = prop.price < 2000000;
+                else if (priceFilter === '2m-5m') matchesPrice = prop.price >= 2000000 && prop.price <= 5000000;
+                else if (priceFilter === 'over5m') matchesPrice = prop.price > 5000000;
+
+                const matchesType = typeFilter === 'all' || prop.property_type === typeFilter;
+
+                return matchesSearch && matchesPrice && matchesType;
+            });
+
+            document.getElementById('propertiesCount').textContent = `${filtered.length} properties found`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b; grid-column: 1 / -1;"><p>No properties found</p></div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(prop => `
+                <div class="property-card" onclick="viewProperty('${prop.id}')">
+                    <div class="property-image-container">
+                        <img src="${prop.images?.[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'}" alt="${prop.title}" onclick="event.stopPropagation(); viewImageFullScreen('${prop.images?.[0]}')">
+                        <span class="property-status status-${prop.status.toLowerCase()}">${prop.status}</span>
+                        <div class="property-price-overlay">
+                            <div class="property-price">${formatPrice(prop.price)}</div>
+                            <div class="property-deposit">50% Deposit: ${formatPrice(prop.price * 0.5)}</div>
+                        </div>
+                    </div>
+                    <div class="property-content">
+                        <h3 class="property-title">${prop.title}</h3>
+                        <div class="property-location">
+                            <i data-lucide="map-pin"></i>
+                            <span>${prop.location}</span>
+                        </div>
+                        <div class="property-features">
+                            <div class="feature-item"><i data-lucide="bed"></i> ${prop.bedrooms || 0}</div>
+                            <div class="feature-item"><i data-lucide="bath"></i> ${prop.bathrooms || 0}</div>
+                            <div class="feature-item"><i data-lucide="car"></i> ${prop.garages || 0}</div>
+                            <div class="feature-item"><i data-lucide="home"></i> ${prop.property_type}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // View Property Details with NEW CAROUSEL
+        async function viewProperty(propertyId) {
+            currentPropertyId = propertyId;
+            
+            // Check if it's a default property first
+            let property = defaultPropertiesData[propertyId];
+            
+            // If not default, try Firestore
+            if (!property && !propertyId.startsWith('default-')) {
+                const doc = await db.collection('properties').doc(propertyId).get();
+                property = { id: doc.id, ...doc.data() };
+            }
+
+            if (!property) return;
+
+            // Set current property images for carousel
+            currentPropertyImages = property.images || ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800'];
+            currentImageIndex = 0;
+
+            // Hide home, show details
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('detailsPage').classList.add('active');
+            document.getElementById('adminPage').classList.remove('active');
+            window.scrollTo(0, 0);
+
+            // Render details with NEW CAROUSEL
+            const detailsContent = document.getElementById('detailsContent');
+            detailsContent.innerHTML = `
+                <div class="details-grid">
+                    <div>
+                        <div class="gallery-container">
+                            <div class="carousel-wrapper">
+                                <div class="main-image-wrapper">
+                                    <img src="${currentPropertyImages[0]}" alt="${property.title}" class="main-image" id="mainCarouselImage" onclick="viewImageFullScreen('${currentPropertyImages[0]}')">
+                                    ${currentPropertyImages.length > 1 ? `
+                                        <button class="carousel-nav prev" id="prevImageBtn" onclick="navigateImage(-1)">
+                                            <i data-lucide="chevron-left"></i>
+                                        </button>
+                                        <button class="carousel-nav next" id="nextImageBtn" onclick="navigateImage(1)">
+                                            <i data-lucide="chevron-right"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                ${currentPropertyImages.length > 1 ? `
+                                    <div class="image-indicators">
+                                        ${currentPropertyImages.map((_, idx) => `
+                                            <div class="indicator-dot ${idx === 0 ? 'active' : ''}" onclick="goToImage(${idx})"></div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                                <div class="image-counter" id="imageCounter">1 / ${currentPropertyImages.length}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="details-card">
+                            <div style="margin-bottom: 1rem;">
+                                <span class="property-status status-${property.status.toLowerCase()}" style="display: inline-block; margin-bottom: 0.5rem;">${property.status}</span>
+                                <h1 style="font-size: 1.875rem; font-weight: bold; margin-bottom: 0.5rem;">${property.title}</h1>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; color: #64748b;">
+                                    <i data-lucide="map-pin"></i>
+                                    <span>${property.location}</span>
+                                </div>
+                            </div>
+
+                            <div class="features-grid">
+                                <div class="feature-box">
+                                    <div class="feature-icon icon-bed">
+                                        <i data-lucide="bed"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.875rem; color: #64748b;">Bedrooms</div>
+                                        <div style="font-weight: 600;">${property.bedrooms || 0}</div>
+                                    </div>
+                                </div>
+                                <div class="feature-box">
+                                    <div class="feature-icon icon-bath">
+                                        <i data-lucide="bath"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.875rem; color: #64748b;">Bathrooms</div>
+                                        <div style="font-weight: 600;">${property.bathrooms || 0}</div>
+                                    </div>
+                                </div>
+                                <div class="feature-box">
+                                    <div class="feature-icon icon-car">
+                                        <i data-lucide="car"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.875rem; color: #64748b;">Garages</div>
+                                        <div style="font-weight: 600;">${property.garages || 0}</div>
+                                    </div>
+                                </div>
+                                <div class="feature-box">
+                                    <div class="feature-icon icon-size">
+                                        <i data-lucide="ruler"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.875rem; color: #64748b;">Size</div>
+                                        <div style="font-weight: 600;">${property.property_size || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1rem 0; border-bottom: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                                    <i data-lucide="utensils"></i>
+                                    <span>${property.kitchens || 1} Kitchen(s)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                                    <i data-lucide="sofa"></i>
+                                    <span>${property.living_areas || 1} Living Area(s)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                                    <i data-lucide="home"></i>
+                                    <span>${property.property_type || 'House'}</span>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 1.5rem;">
+                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.75rem;">Description</h3>
+                                <p style="color: #64748b; line-height: 1.7;">${property.description}</p>
+                            </div>
+                        </div>
+
+                        <div class="details-card">
+                            <h3 style="margin-bottom: 1rem;">Reviews</h3>
+                            <div id="reviewsSection">
+                                <p style="text-align: center; color: #64748b; padding: 2rem 0;">No reviews yet. Be the first to review!</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="showReviewForm()">
+                                <i data-lucide="star"></i>
+                                Write Review
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="details-card sidebar-card">
+                            <div class="price-section">
+                                <p class="price-label">Price</p>
+                                <p class="price-value">${formatPrice(property.price)}</p>
+                            </div>
+                            
+                            <div class="deposit-section">
+                                <p style="font-weight: 600; color: #92400e; margin-bottom: 0.5rem;">50% Deposit Required</p>
+                                <p class="deposit-amount">${formatPrice(property.price * 0.5)}</p>
+                                <p style="font-size: 0.75rem; color: #92400e; margin-top: 0.25rem;">Cash buyers only - No finance</p>
+                            </div>
+
+                            <button class="btn btn-primary btn-full" style="margin-bottom: 1rem;" onclick="showInquiryForm()">
+                                <i data-lucide="heart"></i>
+                                I Want This Property
+                            </button>
+                            
+                            <div class="alert alert-info" style="font-size: 0.75rem;">
+                                <strong>Important:</strong>
+                                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                                    <li>Title deed prepared from Deeds Office</li>
+                                    <li>Property viewing after deposit</li>
+                                    <li>Professional transfer process</li>
+                                </ul>
+                            </div>
+
+                            <button class="btn btn-secondary btn-full" onclick="location.href__='mailto:home45pro@gmail.com'">
+                                <i data-lucide="mail"></i>
+                                Email Us
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Initialize carousel display
+            updateCarouselDisplay();
+
+            // Load reviews if not default
+            if (!propertyId.startsWith('default-')) {
+                loadReviews(propertyId);
+            }
+        }
+
+        // Load Reviews
+        async function loadReviews(propertyId) {
+            const snapshot = await db.collection('reviews').where('propertyId', '==', propertyId).get();
+            const reviews = [];
+            snapshot.forEach(doc => reviews.push({ id: doc.id, ...doc.data() }));
+
+            const reviewsSection = document.getElementById('reviewsSection');
+            
+            if (reviews.length === 0) {
+                reviewsSection.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem 0;">No reviews yet. Be the first to review!</p>';
+                return;
+            }
+
+            const avgRating = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
+            
+            reviewsSection.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span class="stars">${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5 - Math.round(avgRating))}</span>
+                        <span style="color: #64748b; font-size: 0.875rem;">${avgRating} (${reviews.length} reviews)</span>
+                    </div>
+                </div>
+                ${reviews.map(review => `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">${review.reviewer_name.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <div style="font-weight: 600;">${review.reviewer_name}</div>
+                                <div class="stars" style="font-size: 0.875rem;">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                            </div>
+                        </div>
+                        <p style="color: #64748b; font-size: 0.875rem;">${review.comment}</p>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        // Show Home
+        function showHome() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('detailsPage').classList.remove('active');
+            document.getElementById('adminPage').classList.remove('active');
+            currentPropertyId = null;
+            currentPropertyImages = [];
+            currentImageIndex = 0;
+            window.scrollTo(0, 0);
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Admin Functions
+        document.getElementById('logoContainer').addEventListener('click', function() {
+            logoClickCount++;
+            
+            if (logoClickCount >= 3) {
+                document.getElementById('adminPasswordModal').classList.add('active');
+                logoClickCount = 0;
+            }
+            
+            setTimeout(() => { logoClickCount = 0; }, 2000);
+        });
+
+        function closeAdminPasswordModal() {
+            document.getElementById('adminPasswordModal').classList.remove('active');
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminPasswordError').style.display = 'none';
+        }
+
+        function checkAdminPassword(event) {
+            event.preventDefault();
+            const password = document.getElementById('adminPasswordInput').value;
+            
+            if (password === 'VNAXXTTM') {
+                sessionStorage.setItem('home45_admin', 'true');
+                closeAdminPasswordModal();
+                showAdminPanel();
+            } else {
+                document.getElementById('adminPasswordError').style.display = 'block';
+            }
+        }
+
+        async function showAdminPanel() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('detailsPage').classList.remove('active');
+            document.getElementById('adminPage').classList.add('active');
+            window.scrollTo(0, 0);
+
+            // Load bank settings
+            await loadBankSettings();
+
+            // Load stats
+            const propertiesSnapshot = await db.collection('properties').get();
+            const inquiriesSnapshot = await db.collection('inquiries').get();
+            const sellersSnapshot = await db.collection('seller_applications').get();
+            
+            document.getElementById('totalProperties').textContent = propertiesSnapshot.size;
+            document.getElementById('totalInquiries').textContent = inquiriesSnapshot.size;
+            document.getElementById('totalSellers').textContent = sellersSnapshot.size;
+            
+            let newCount = 0;
+            inquiriesSnapshot.forEach(doc => {
+                if (doc.data().status === 'New') newCount++;
+            });
+            document.getElementById('newInquiries').textContent = newCount;
+
+            // Load properties, inquiries, and sellers
+            loadAdminProperties();
+            loadAdminInquiries();
+            loadAdminSellers();
+
+            // Re-initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        async function loadAdminProperties() {
+            const snapshot = await db.collection('properties').orderBy('created_at', 'desc').get();
+            const properties = [];
+            snapshot.forEach(doc => properties.push({ id: doc.id, ...doc.data() }));
+
+            const list = document.getElementById('adminPropertiesList');
+            
+            if (properties.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">No properties yet. Add your first property!</p>';
+                return;
+            }
+
+            list.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Location</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${properties.map(prop => `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <img src="${prop.images?.[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=100'}" 
+                                             style="width: 48px; height: 48px; border-radius: 0.5rem; object-fit: cover;">
+                                        <div>
+                                            <div style="font-weight: 500;">${prop.title}</div>
+                                            <div style="font-size: 0.875rem; color: #64748b;">${prop.bedrooms} bed • ${prop.bathrooms} bath</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${prop.location}</td>
+                                <td>${formatPrice(prop.price)}</td>
+                                <td><span class="property-status status-${prop.status.toLowerCase()}">${prop.status}</span></td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="editProperty('${prop.id}')">
+                                        <i data-lucide="edit"></i>
+                                    </button>
+                                    <button class="btn btn-secondary" style="padding: 0.5rem; color: #ef4444; margin-left: 0.5rem;" onclick="deleteProperty('${prop.id}')">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        async function loadAdminInquiries() {
+            const snapshot = await db.collection('inquiries').orderBy('created_at', 'desc').get();
+            const inquiries = [];
+            snapshot.forEach(doc => inquiries.push({ id: doc.id, ...doc.data() }));
+
+            const list = document.getElementById('adminBuyersList');
+            
+            if (inquiries.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">No inquiries yet.</p>';
+                return;
+            }
+
+            list.innerHTML = inquiries.map(inquiry => `
+                <div style="border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h4 style="font-weight: 600; font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="user"></i>
+                                ${inquiry.buyer_name}
+                            </h4>
+                            <p style="font-size: 0.875rem; color: #64748b;">Interested in: ${inquiry.property_title}</p>
+                            ${inquiry.payment_confirmed ? '<p style="font-size: 0.875rem; color: #10b981; font-weight: 600;">✓ Payment Confirmed</p>' : ''}
+                            ${inquiry.total_paid ? `<p style="font-size: 0.875rem; color: #059669; font-weight: 600;">Total Paid: ${formatPrice(inquiry.total_paid)}</p>` : ''}
+                        </div>
+                        <select class="form-select" style="width: 150px;" onchange="updateInquiryStatus('${inquiry.id}', this.value)">
+                            <option value="New" ${inquiry.status === 'New' ? 'selected' : ''}>New</option>
+                            <option value="Contacted" ${inquiry.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
+                            <option value="Deposit Received" ${inquiry.status === 'Deposit Received' ? 'selected' : ''}>Deposit Received</option>
+                            <option value="Completed" ${inquiry.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                            <option value="Cancelled" ${inquiry.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="mail"></i>
+                            <a href__="mailto:${inquiry.buyer_email}" style="color: #3b82f6;">${inquiry.buyer_email}</a>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="phone"></i>
+                            <a href__="tel:${inquiry.buyer_phone}" style="color: #3b82f6;">${inquiry.buyer_phone}</a>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="map-pin"></i>
+                            ${inquiry.buyer_location}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="calendar"></i>
+                            Move in: ${inquiry.move_in_date}
+                        </div>
+                    </div>
+                    ${inquiry.message ? `<div style="margin-top: 1rem; padding: 0.75rem; background: #f1f5f9; border-radius: 0.5rem; font-size: 0.875rem; color: #64748b;">${inquiry.message}</div>` : ''}
+                </div>
+            `).join('');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        async function loadAdminSellers() {
+            const snapshot = await db.collection('seller_applications').orderBy('created_at', 'desc').get();
+            const sellers = [];
+            snapshot.forEach(doc => sellers.push({ id: doc.id, ...doc.data() }));
+
+            const list = document.getElementById('adminSellersList');
+            
+            if (sellers.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">No seller applications yet.</p>';
+                return;
+            }
+
+            list.innerHTML = sellers.map(seller => `
+                <div style="border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h4 style="font-weight: 600; font-size: 1.125rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="home"></i>
+                                ${seller.seller_name}
+                            </h4>
+                            <p style="font-size: 0.875rem; color: #64748b;">Property: ${seller.property_address}</p>
+                            <p style="font-size: 0.875rem; color: #10b981; font-weight: 600;">Price: ${formatPrice(seller.property_price)}</p>
+                        </div>
+                        <select class="form-select" style="width: 180px;" onchange="updateSellerStatus('${seller.id}', this.value)">
+                            <option value="Pending Verification" ${seller.status === 'Pending Verification' ? 'selected' : ''}>Pending Verification</option>
+                            <option value="Payment Confirmed" ${seller.status === 'Payment Confirmed' ? 'selected' : ''}>Payment Confirmed</option>
+                            <option value="Listed" ${seller.status === 'Listed' ? 'selected' : ''}>Listed</option>
+                            <option value="Rejected" ${seller.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="mail"></i>
+                            <a href__="mailto:${seller.seller_email}" style="color: #3b82f6;">${seller.seller_email}</a>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="phone"></i>
+                            <a href__="tel:${seller.seller_phone}" style="color: #3b82f6;">${seller.seller_phone}</a>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="check-circle"></i>
+                            ${seller.payment_confirmed ? 'Payment Confirmed' : 'Awaiting Payment'}
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border-radius: 0.5rem; font-size: 0.875rem;">
+                        <strong>Service Fee:</strong> R1,500 • <strong>Status:</strong> ${seller.status}
+                    </div>
+                </div>
+            `).join('');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        async function updateInquiryStatus(inquiryId, status) {
+            await db.collection('inquiries').doc(inquiryId).update({ status });
+            loadAdminInquiries();
+        }
+
+        async function updateSellerStatus(sellerId, status) {
+            await db.collection('seller_applications').doc(sellerId).update({ status });
+            loadAdminSellers();
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('[id^="admin"][id$="Tab"]').forEach(t => t.classList.add('hidden'));
+            
+            document.getElementById(tab + 'Tab').classList.add('active');
+            document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.remove('hidden');
+
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem('home45_admin');
+            showHome();
+        }
+
+        // Bank Settings Functions
+        async function loadBankSettings() {
+            try {
+                const doc = await db.collection('settings').doc('bank_account').get();
+                if (doc.exists) {
+                    bankSettings = doc.data();
+                }
+            } catch (error) {
+                console.error('Error loading bank settings:', error);
+            }
+
+            // Update form if on settings tab
+            if (document.getElementById('bankName')) {
+                document.getElementById('bankName').value = bankSettings.bankName || 'TymeBank';
+                document.getElementById('accountNumber').value = bankSettings.accountNumber || '5110 3334 333';
+                document.getElementById('accountHolder').value = bankSettings.accountHolder || 'Home45';
+                document.getElementById('branchCode').value = bankSettings.branchCode || '678910';
+            }
+
+            // Update display in sell house form
+            if (document.getElementById('displayBankName')) {
+                document.getElementById('displayBankName').textContent = bankSettings.bankName || 'TymeBank';
+                document.getElementById('displayAccountNumber').textContent = bankSettings.accountNumber || '5110 3334 333';
+                document.getElementById('displayAccountHolder').textContent = bankSettings.accountHolder || 'Home45';
+            }
+        }
+
+        async function saveBankSettings(event) {
+            event.preventDefault();
+
+            bankSettings = {
+                bankName: document.getElementById('bankName').value,
+                accountNumber: document.getElementById('accountNumber').value,
+                accountHolder: document.getElementById('accountHolder').value,
+                branchCode: document.getElementById('branchCode').value
+            };
+
+            try {
+                await db.collection('settings').doc('bank_account').set(bankSettings);
+                alert('Bank details saved successfully!');
+                loadBankSettings();
+            } catch (error) {
+                console.error('Error saving bank settings:', error);
+                alert('Failed to save bank details.');
+            }
+        }
+
+        // Property Form Functions
+        function showPropertyForm() {
+            currentEditingProperty = null;
+            uploadedImages = [];
+            document.getElementById('propertyForm').reset();
+            document.getElementById('propertyFormTitle').innerHTML = '<i data-lucide="plus-circle"></i> Add New Property';
+            document.getElementById('imagePreviewGrid').innerHTML = '';
+            document.getElementById('propertyFormModal').classList.add('active');
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function closePropertyForm() {
+            document.getElementById('propertyFormModal').classList.remove('active');
+            currentEditingProperty = null;
+            uploadedImages = [];
+        }
+
+        async function editProperty(propertyId) {
+            const doc = await db.collection('properties').doc(propertyId).get();
+            const property = { id: doc.id, ...doc.data() };
+            
+            currentEditingProperty = propertyId;
+            uploadedImages = property.images || [];
+
+            document.getElementById('propertyFormTitle').innerHTML = '<i data-lucide="edit"></i> Edit Property';
+            document.getElementById('propTitle').value = property.title;
+            document.getElementById('propDescription').value = property.description;
+            document.getElementById('propPrice').value = property.price;
+            document.getElementById('propLocation').value = property.location;
+            document.getElementById('propBedrooms').value = property.bedrooms;
+            document.getElementById('propBathrooms').value = property.bathrooms;
+            document.getElementById('propGarages').value = property.garages;
+            document.getElementById('propKitchens').value = property.kitchens;
+            document.getElementById('propLivingAreas').value = property.living_areas;
+            document.getElementById('propSize').value = property.property_size;
+            document.getElementById('propType').value = property.property_type;
+            document.getElementById('propStatus').value = property.status;
+            document.getElementById('propEmail').value = property.contact_email;
+
+            renderImagePreviews();
+            document.getElementById('propertyFormModal').classList.add('active');
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        async function saveProperty(event) {
+            event.preventDefault();
+
+            const propertyData = {
+                title: document.getElementById('propTitle').value,
+                description: document.getElementById('propDescription').value,
+                price: parseFloat(document.getElementById('propPrice').value),
+                location: document.getElementById('propLocation').value,
+                bedrooms: parseInt(document.getElementById('propBedrooms').value) || 0,
+                bathrooms: parseInt(document.getElementById('propBathrooms').value) || 0,
+                garages: parseInt(document.getElementById('propGarages').value) || 0,
+                kitchens: parseInt(document.getElementById('propKitchens').value) || 1,
+                living_areas: parseInt(document.getElementById('propLivingAreas').value) || 1,
+                property_size: document.getElementById('propSize').value,
+                property_type: document.getElementById('propType').value,
+                status: document.getElementById('propStatus').value,
+                contact_email: document.getElementById('propEmail').value,
+                images: uploadedImages,
+                created_at: currentEditingProperty ? undefined : new Date()
+            };
+
+            try {
+                if (currentEditingProperty) {
+                    await db.collection('properties').doc(currentEditingProperty).update(propertyData);
+                    alert('Property updated successfully!');
+                } else {
+                    await db.collection('properties').add(propertyData);
+                    alert('Property added successfully!');
+                }
+
+                closePropertyForm();
+                loadAdminProperties();
+                loadFirestoreProperties();
+            } catch (error) {
+                console.error('Error saving property:', error);
+                alert('Failed to save property. Please try again.');
+            }
+        }
+
+        async function deleteProperty(propertyId) {
+            if (!confirm('Are you sure you want to delete this property?')) return;
+
+            try {
+                await db.collection('properties').doc(propertyId).delete();
+                alert('Property deleted!');
+                loadAdminProperties();
+                loadFirestoreProperties();
+            } catch (error) {
+                console.error('Error deleting property:', error);
+                alert('Failed to delete property.');
+            }
+        }
+
+        // Inquiry Form Functions
+        function showInquiryForm() {
+            document.getElementById('inquiryForm').reset();
+            document.getElementById('inquiryFormModal').classList.add('active');
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function closeInquiryForm() {
+            document.getElementById('inquiryFormModal').classList.remove('active');
+        }
+
+        // PAYMENT SCREEN FUNCTIONS
+        function showPaymentScreen(property, inquiryData) {
+            const propertyDeposit = property.price * 0.5;
+            const propertyPreparation = 15000;
+            const titleDeedPreparation = 25000;
+            const adminCharges = 10000;
+            const totalAmount = propertyDeposit + propertyPreparation + titleDeedPreparation + adminCharges;
+            const remainingBalance = property.price * 0.5;
+
+            document.getElementById('paymentPropertyDeposit').textContent = formatPrice(propertyDeposit);
+            document.getElementById('paymentTotalAmount').textContent = formatPrice(totalAmount);
+            document.getElementById('paymentRemainingBalance').textContent = formatPrice(remainingBalance);
+
+            currentInquiryData = {
+                ...inquiryData,
+                propertyId: currentPropertyId,
+                property_title: property.title,
+                total_paid: totalAmount,
+                remaining_balance: remainingBalance,
+                payment_confirmed: false
+            };
+
+            document.getElementById('paymentScreen').classList.add('active');
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function closePaymentScreen() {
+            document.getElementById('paymentScreen').classList.remove('active');
+        }
+
+        async function confirmPayment() {
+            if (!currentInquiryData) return;
+
+            try {
+                // Save inquiry with payment info to Firestore
+                currentInquiryData.payment_confirmed = true;
+                currentInquiryData.status = 'New';
+                currentInquiryData.created_at = new Date();
+                
+                await db.collection('inquiries').add(currentInquiryData);
+
+                // Prepare email content
+                const emailSubject = encodeURIComponent(`Payment Proof - ${currentInquiryData.property_title}`);
+                const emailBody = encodeURIComponent(`Hi Home45 Team,\n\nI have completed my deposit payment for the property: ${currentInquiryData.property_title}\n\nBuyer Details:\nName: ${currentInquiryData.buyer_name}\nEmail: ${currentInquiryData.buyer_email}\nPhone: ${currentInquiryData.buyer_phone}\nLocation: ${currentInquiryData.buyer_location}\n\nPayment Summary:\nTotal Paid: ${formatPrice(currentInquiryData.total_paid)}\nRemaining Balance: ${formatPrice(currentInquiryData.remaining_balance)}\n\nPlease find my payment proof attached.\n\nThank you,\n${currentInquiryData.buyer_name}`);
+                
+                // Open email client
+                window.location.href = `mailto:home45pro@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+
+                // Close payment screen and show success message
+                setTimeout(() => {
+                    closePaymentScreen();
+                    alert('Thank you! Your interest has been recorded. Please send your payment proof via the email that just opened. We will verify your payment within 24 hours and contact you to proceed with the property transfer.');
+                    showHome();
+                }, 500);
+
+            } catch (error) {
+                console.error('Error confirming payment:', error);
+                alert('Failed to process your request. Please try again.');
+            }
+        }
+
+        async function submitInquiry(event) {
+            event.preventDefault();
+
+            let property = defaultPropertiesData[currentPropertyId];
+            if (!property && !currentPropertyId.startsWith('default-')) {
+                const propertyDoc = await db.collection('properties').doc(currentPropertyId).get();
+                property = propertyDoc.data();
+            }
+
+            const inquiryData = {
+                buyer_name: document.getElementById('buyerName').value,
+                buyer_email: document.getElementById('buyerEmail').value,
+                buyer_phone: document.getElementById('buyerPhone').value,
+                buyer_location: document.getElementById('buyerLocation').value,
+                move_in_date: document.getElementById('moveInDate').value,
+                message: document.getElementById('buyerMessage').value
+            };
+
+            // Close inquiry form
+            closeInquiryForm();
+
+            // Show payment screen
+            showPaymentScreen(property, inquiryData);
+        }
+
+        // Review Form Functions
+        function showReviewForm() {
+            document.getElementById('reviewForm').reset();
+            selectedRating = 5;
+            updateRatingStars();
+            document.getElementById('reviewFormModal').classList.add('active');
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function closeReviewForm() {
+            document.getElementById('reviewFormModal').classList.remove('active');
+        }
+
+        function setRating(rating) {
+            selectedRating = rating;
+            updateRatingStars();
+        }
+
+        function updateRatingStars() {
+            const container = document.getElementById('ratingStars');
+            container.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.textContent = i <= selectedRating ? '★' : '☆';
+                star.style.cursor = 'pointer';
+                star.style.color = i <= selectedRating ? '#fbbf24' : '#cbd5e1';
+                star.onclick = () => setRating(i);
+                container.appendChild(star);
+            }
+        }
+
+        async function submitReview(event) {
+            event.preventDefault();
+
+            const reviewData = {
+                propertyId: currentPropertyId,
+                reviewer_name: document.getElementById('reviewerName').value,
+                rating: selectedRating,
+                comment: document.getElementById('reviewComment').value,
+                created_at: new Date()
+            };
+
+            try {
+                await db.collection('reviews').add(reviewData);
+                closeReviewForm();
+                alert('Review submitted successfully!');
+                loadReviews(currentPropertyId);
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Failed to submit review. Please try again.');
+            }
+        }
+
+        // Sell House Functions
+        function showSellHouseForm() {
+            document.getElementById('sellHouseForm').reset();
+            document.getElementById('sellHouseModal').classList.add('active');
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        function closeSellHouseForm() {
+            document.getElementById('sellHouseModal').classList.remove('active');
+        }
+
+        async function submitSellHouse(event) {
+            event.preventDefault();
+            
+            const sellerData = {
+                seller_name: document.getElementById('sellerName').value,
+                seller_email: document.getElementById('sellerEmail').value,
+                seller_phone: document.getElementById('sellerPhone').value,
+                property_address: document.getElementById('sellerAddress').value,
+                property_price: parseFloat(document.getElementById('sellerPrice').value),
+                payment_confirmed: document.getElementById('confirmDeposit').checked,
+                status: 'Pending Verification',
+                created_at: new Date()
+            };
+
+            try {
+                await db.collection('seller_applications').add(sellerData);
+                closeSellHouseForm();
+                
+                // Open email to send proof
+                const emailSubject = encodeURIComponent('Sell House - Payment Proof');
+                const emailBody = encodeURIComponent(`Hi,\n\nI have deposited R1,500 for listing my property.\n\nName: ${sellerData.seller_name}\nPhone: ${sellerData.seller_phone}\nProperty: ${sellerData.property_address}\nPrice: R${sellerData.property_price.toLocaleString()}\n\nPlease find payment proof attached.\n\nThank you`);
+                window.location.href = `mailto:home45pro@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+                
+                alert('Application submitted! Please send your payment proof via email.');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to submit. Please try again.');
+            }
+        }
+
+        // Search and Filter
+        document.getElementById('searchInput').addEventListener('input', () => displayProperties(allProperties));
+        document.getElementById('priceFilter').addEventListener('change', () => displayProperties(allProperties));
+        document.getElementById('typeFilter').addEventListener('change', () => displayProperties(allProperties));
+
+        // Initialize - DEFAULTS FIRST, then Firestore
+        window.addEventListener('DOMContentLoaded', () => {
+            // Defaults are already in HTML
+            allProperties = Object.values(defaultPropertiesData);
+            
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            
+            // Load Firestore in background (will merge with defaults)
+            setTimeout(() => {
+                loadFirestoreProperties();
+            }, 100);
+
+            // Load bank settings
+            loadBankSettings();
+        });
+    </script>
+</body>
+</html>
