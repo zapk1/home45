@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://home45.co.za/sitemap.xml
