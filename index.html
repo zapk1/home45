@@ -21,6 +21,14 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        (function() {
+            emailjs.init("8ygU_OBdqaIWI7QRX");  // ← Replace with your EmailJS public key
+        })();
+    </script>
+
     <meta name="google-site-verification" content="google-site-verification=vALetSPafmd6thxPX-kDIg-o6WpU1LH8ANHyz7NSaAQ">
 
     
@@ -2524,6 +2532,27 @@ let firestoreLoadedProperties = [];
             branchCode: '678910'
         };
 
+        // ===== EMAILJS NOTIFICATION FUNCTION =====
+        function sendEmailNotification(type, data) {
+            const templateParams = {
+                type: type,
+                name: data.name || 'N/A',
+                customer_email: data.email || 'N/A',
+                phone: data.phone || 'N/A',
+                property: data.property || 'N/A',
+                price: data.price || 'N/A',
+                message: data.message || 'No additional message',
+                date: new Date().toLocaleString('en-ZA', { timeZone: 'Africa/Johannesburg' })
+            };
+
+            emailjs.send('service_9ci2utr', 'template_35nl9cu', templateParams)
+                .then(function(response) {
+                    console.log('📧 Email notification sent!', response.status);
+                }, function(error) {
+                    console.error('📧 Email failed:', error);
+                });
+        }
+
         // Format currency
         function formatPrice(price) {
             return new Intl.NumberFormat('en-ZA', {
@@ -3693,6 +3722,17 @@ if (!currentEditingProperty) {
                 currentInquiryData.status = 'New';
                 currentInquiryData.created_at = new Date();
                 await db.collection('inquiries').add(currentInquiryData);
+
+                // Send email notification for property purchase/rental
+                sendEmailNotification('Property Purchase / Rental Interest', {
+                    name: currentInquiryData.buyer_name,
+                    email: currentInquiryData.buyer_email,
+                    phone: currentInquiryData.buyer_phone,
+                    property: currentInquiryData.property_title,
+                    price: currentInquiryData.is_rental ? 'Rental' : 'Purchase',
+                    message: 'Buyer Location: ' + (currentInquiryData.buyer_location || 'N/A') + ' | Move-in Date: ' + (currentInquiryData.move_in_date || 'N/A') + ' | Message: ' + (currentInquiryData.message || 'None')
+                });
+
                 closePaymentScreen();
                 alert('Thank you! Your interest has been recorded. Home45 will connect you to the seller shortly.');
                 showHome();
@@ -3701,6 +3741,7 @@ if (!currentEditingProperty) {
                 alert('Failed to process your request. Please try again.');
             }
         }
+
 
 
 
@@ -3966,6 +4007,17 @@ async function submitSellHouseStep1(event) {
 
     try {
         await db.collection('seller_applications').add(sellerData);
+
+        // Send email notification for new seller listing application
+        sendEmailNotification('New Property Listing Application', {
+            name: sellerData.seller_name,
+            email: sellerData.seller_email,
+            phone: sellerData.seller_phone,
+            property: sellerData.property_address,
+            price: formatPrice(sellerData.property_price),
+            message: 'Seller Type: ' + sellerData.seller_type + ' | Listing Type: ' + sellerData.listing_type + ' | Location: ' + sellerData.seller_location + (sellerData.agency_name ? ' | Agency: ' + sellerData.agency_name : '')
+        });
+
         closeSellHouseForm();
         document.getElementById('sellPaymentModal').classList.add('active');
         if (typeof lucide !== 'undefined') lucide.createIcons();
